@@ -1,0 +1,56 @@
+import React from 'react';
+import { ExamplePanel } from './panels/ExamplePanel';
+import type { PanelDefinition, PanelContextValue } from './types';
+
+/**
+ * Export array of panel definitions.
+ * This is the required export for panel extensions.
+ */
+export const panels: PanelDefinition[] = [
+  {
+    id: 'your-org.example-panel',
+    name: 'Example Panel',
+    icon: '📝',
+    version: '0.1.0',
+    author: 'Your Organization',
+    description: 'A simple example panel demonstrating the panel framework',
+    component: ExamplePanel,
+
+    // Optional: Called when this specific panel is mounted
+    onMount: async (context: PanelContextValue) => {
+      console.log('Example Panel mounted');
+      console.log('Repository:', context.repositoryPath);
+
+      // Example: Refresh data if git slice is available
+      if (context.hasSlice('git') && !context.isSliceLoading('git')) {
+        await context.refresh();
+      }
+    },
+
+    // Optional: Called when this specific panel is unmounted
+    onUnmount: async (context: PanelContextValue) => {
+      console.log('Example Panel unmounting');
+    },
+
+    // Optional: Called when data slices change
+    onDataChange: (slice, data) => {
+      console.log(`Data changed for slice: ${slice}`, data);
+    },
+  },
+];
+
+/**
+ * Optional: Called once when the entire package is loaded.
+ * Use this for package-level initialization.
+ */
+export const onPackageLoad = async () => {
+  console.log('Panel package loaded - Example Panel Extension');
+};
+
+/**
+ * Optional: Called once when the package is unloaded.
+ * Use this for package-level cleanup.
+ */
+export const onPackageUnload = async () => {
+  console.log('Panel package unloading - Example Panel Extension');
+};
