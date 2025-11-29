@@ -1,5 +1,6 @@
 import { ExamplePanel } from './panels/ExamplePanel';
 import type { PanelDefinition, PanelContextValue } from './types';
+import { examplePanelTools, examplePanelToolsMetadata } from './tools';
 
 /**
  * Export array of panel definitions.
@@ -15,6 +16,8 @@ export const panels: PanelDefinition[] = [
       author: 'Your Organization',
       description: 'A simple example panel demonstrating the panel framework',
       slices: ['git', 'markdown', 'fileTree'], // Data slices this panel depends on
+      // UTCP-compatible tools this panel exposes
+      tools: examplePanelTools,
     },
     component: ExamplePanel,
 
@@ -57,3 +60,15 @@ export const onPackageUnload = async () => {
   // eslint-disable-next-line no-console
   console.log('Panel package unloading - Example Panel Extension');
 };
+
+/**
+ * Export tools for server-safe imports.
+ * Use '@your-org/panel-starter/tools' to import without React dependencies.
+ */
+export {
+  examplePanelTools,
+  examplePanelToolsMetadata,
+  refreshGitStatusTool,
+  selectFileTool,
+  toggleSectionTool,
+} from './tools';

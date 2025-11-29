@@ -6,14 +6,29 @@
   "main": "dist/panels.bundle.js",
   "module": "dist/panels.bundle.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/panels.bundle.js",
+      "require": "./dist/panels.bundle.js",
+      "default": "./dist/panels.bundle.js"
+    },
+    "./tools": {
+      "types": "./dist/tools/index.d.ts",
+      "import": "./dist/tools.bundle.js",
+      "require": "./dist/tools.bundle.js",
+      "default": "./dist/tools.bundle.js"
+    }
+  },
   "keywords": [
     "panel-extension"
   ],
   "author": "Your Name",
   "license": "MIT",
   "scripts": {
-    "build": "bun run clean && bun run build:panel && bun run build:types",
+    "build": "bun run clean && bun run build:panel && bun run build:tools && bun run build:types",
     "build:panel": "vite build",
+    "build:tools": "bun build ./src/tools/index.ts --outfile ./dist/tools.bundle.js --format esm --target browser",
     "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly --declaration --declarationMap",
     "dev": "vite build --watch",
     "clean": "rm -rf dist",
@@ -38,7 +53,8 @@
   },
   "dependencies": {
     "@principal-ade/industry-theme": "^0.1.2",
-    "@principal-ade/panel-framework-core": "^0.1.2",
+    "@principal-ade/panel-framework-core": "^0.1.5",
+    "@principal-ade/utcp-panel-event": "^0.1.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.552.0"
   },

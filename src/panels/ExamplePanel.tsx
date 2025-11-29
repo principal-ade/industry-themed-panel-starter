@@ -12,23 +12,69 @@ const ExamplePanelContent: React.FC<PanelComponentProps> = ({
   events,
 }) => {
   const [eventLog, setEventLog] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState({
+    staged: true,
+    unstaged: true,
+    untracked: true,
+  });
   const { theme } = useTheme();
 
-  // Subscribe to panel events
-  useEffect(() => {
-    const unsubscribe = events.on<{ filePath: string }>(
-      'file:opened',
-      (event) => {
-        const timestamp = new Date().toLocaleTimeString();
-        setEventLog((prev) => [
-          ...prev,
-          `[${timestamp}] File opened: ${event.payload?.filePath || 'unknown'}`,
-        ]);
-      }
-    );
+  // Helper to log events
+  const logEvent = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setEventLog((prev) => [...prev.slice(-19), `[${timestamp}] ${message}`]);
+  };
 
-    return unsubscribe;
-  }, [events]);
+  // Subscribe to panel events (including tool-invoked events)
+  useEffect(() => {
+    const unsubscribers = [
+      // Standard file:opened event
+      events.on<{ filePath: string }>('file:opened', (event) => {
+        logEvent(`File opened: ${event.payload?.filePath || 'unknown'}`);
+      }),
+
+      // Tool: refresh_git_status
+      events.on<{ force?: boolean }>('your-org.example-panel:refresh-git', async (event) => {
+        logEvent(`Tool invoked: refresh_git_status (force=${event.payload?.force || false})`);
+        try {
+          await context.refresh('repository', 'git');
+          logEvent('Git status refreshed successfully');
+        } catch (error) {
+          logEvent(`Git refresh failed: ${error}`);
+        }
+      }),
+
+      // Tool: select_file
+      events.on<{ filePath: string; scrollIntoView?: boolean }>(
+        'your-org.example-panel:select-file',
+        (event) => {
+          const { filePath, scrollIntoView } = event.payload || {};
+          logEvent(`Tool invoked: select_file (path=${filePath}, scroll=${scrollIntoView})`);
+          if (filePath) {
+            setSelectedFile(filePath);
+          }
+        }
+      ),
+
+      // Tool: toggle_section
+      events.on<{ section: 'staged' | 'unstaged' | 'untracked'; expanded?: boolean }>(
+        'your-org.example-panel:toggle-section',
+        (event) => {
+          const { section, expanded } = event.payload || {};
+          logEvent(`Tool invoked: toggle_section (section=${section}, expanded=${expanded})`);
+          if (section) {
+            setExpandedSections((prev) => ({
+              ...prev,
+              [section]: expanded !== undefined ? expanded : !prev[section],
+            }));
+          }
+        }
+      ),
+    ];
+
+    return () => unsubscribers.forEach((unsub) => unsub());
+  }, [events, context]);
 
   // Example: Handle refresh button click
   const handleRefresh = async () => {
