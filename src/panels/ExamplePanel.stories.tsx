@@ -8,6 +8,8 @@ import {
 } from '../mocks/panelContext';
 import type { DataSlice } from '../types';
 
+// Note: ThemeProvider is now provided by MockPanelProvider
+
 /**
  * ExamplePanel demonstrates the panel framework integration.
  * It shows how to access context, use actions, and subscribe to events.
@@ -179,18 +181,20 @@ export const ManyGitChanges: Story = {
  */
 export const WithInteractiveActions: Story = {
   render: () => {
-    const context = createMockContext();
-    const actions = createMockActions({
-      openFile: (filePath) => {
-        alert(`Opening file: ${filePath}`);
-      },
-      navigateToPanel: (panelId) => {
-        alert(`Navigating to panel: ${panelId}`);
-      },
-    });
-    const events = createMockEvents();
-
-    return <ExamplePanel context={context} actions={actions} events={events} />;
+    return (
+      <MockPanelProvider
+        actionsOverrides={{
+          openFile: (filePath) => {
+            alert(`Opening file: ${filePath}`);
+          },
+          navigateToPanel: (panelId) => {
+            alert(`Navigating to panel: ${panelId}`);
+          },
+        }}
+      >
+        {(props) => <ExamplePanel {...props} />}
+      </MockPanelProvider>
+    );
   },
 };
 

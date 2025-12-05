@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FileText, RefreshCw } from 'lucide-react';
-import { ThemeProvider, useTheme } from '@principal-ade/industry-theme';
+import { useTheme } from '@principal-ade/industry-theme';
 import type { PanelComponentProps } from '../types';
 
 /**
@@ -344,12 +344,8 @@ const ExamplePanelContent: React.FC<PanelComponentProps> = ({
  * - How to use panel actions (open files, navigate)
  * - How to subscribe to panel events
  * - How to display loading states
- * - How to use the industry theme
+ * - How to use the industry theme (provided by host)
  */
 export const ExamplePanel: React.FC<PanelComponentProps> = (props) => {
-  return (
-    <ThemeProvider>
-      <ExamplePanelContent {...props} />
-    </ThemeProvider>
-  );
+  return <ExamplePanelContent {...props} />;
 };
